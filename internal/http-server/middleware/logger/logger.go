@@ -17,7 +17,7 @@ func New(log *slog.Logger) func(next http.Handler) http.Handler {
 		log.Info("logger middleware enabled")
 
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			// execution before requests are processed
+			// collect initial information about the request, execution before requests are processed
 			entry := log.With(
 				slog.String("method", r.Method),
 				slog.String("path", r.URL.Path),
@@ -26,9 +26,14 @@ func New(log *slog.Logger) func(next http.Handler) http.Handler {
 				slog.String("request_id", middleware.GetReqID(r.Context())),
 			)
 
+			// create a wrapper around `http.ResponseWriter`
+			// to get information about the response
 			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 
 			t1 := time.Now()
+
+			// The entry is sent to the log in defer
+			// at this point the request will already be processed
 			defer func() {
 				entry.Info("request completes",
 					slog.Int("status", ww.Status()),
