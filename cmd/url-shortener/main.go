@@ -37,11 +37,11 @@ func main() {
 	router := chi.NewRouter()
 
 	// middleware
-	router.Use(middleware.RequestID)
-	router.Use(middleware.Logger)
+	router.Use(middleware.RequestID) // Добавляет request_id в каждый запрос, для трейсинга
+	router.Use(middleware.Logger)    // Логирование всех запросов
 	router.Use(logger.New(log))
-	router.Use(middleware.Recoverer)
-	router.Use(middleware.URLFormat)
+	router.Use(middleware.Recoverer) // Если где-то внутри сервера (обработчика запроса) произойдет паника, приложение не должно упасть
+	router.Use(middleware.URLFormat) // Парсер URLо-в поступающих запросов
 
 	// TODO run server
 }
